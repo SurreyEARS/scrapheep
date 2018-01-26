@@ -60,7 +60,7 @@ void loop() {
 // 	byte ByteRead, CommandValid, Command;
 // 	uint32_t TimeOfLastValidPacket_MS = 0;
 
-// 	WiFiClient client = server.available();   // listen for incoming clients
+	// WiFiClient client = server.available();   // listen for incoming clients
 
 // 	GUID_t FormatID0;
 // 	GUID_t FormatID;
@@ -146,10 +146,15 @@ void loop() {
 			incomingPacket[len] = 0;
 		}
 		Serial.printf("UDP packet contents: %s\n", incomingPacket);
+		byte Command = (byte) incomingPacket;
+		digitalWrite(0, Command & 1 ? HIGH : LOW);
+		digitalWrite(2, Command & 2 ? HIGH : LOW);
+		digitalWrite(4, Command & 4 ? HIGH : LOW);
+		digitalWrite(5, Command & 8 ? HIGH : LOW);
 
 		// send back a reply, to the IP address and port we got the packet from
-		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-		Udp.write(replyPacekt);
-		Udp.endPacket();
+		// Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+		// Udp.write(replyPacekt);
+		// Udp.endPacket();
 	}
 }
