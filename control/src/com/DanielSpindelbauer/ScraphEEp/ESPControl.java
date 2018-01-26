@@ -10,7 +10,6 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Font;
 import java.awt.event.ActionListener;
@@ -36,8 +35,6 @@ public class ESPControl {
   private JButton btnRForward;
   
   private static Comms comms = null;
-  private JLabel lblLeft;
-  private JLabel lblRight;
   
   /**
    * Launch the application.
@@ -70,7 +67,7 @@ public class ESPControl {
     frame = new JFrame();
     frame.setResizable(false);
     frame.setTitle("ESP Control");
-    frame.setBounds(100, 100, 450, 300);
+    frame.setBounds(100, 100, 400, 200);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     
     // MARK: - MenuBar
@@ -82,9 +79,9 @@ public class ESPControl {
     // MARK: - CONTENT
     GridBagLayout gridBagLayout = new GridBagLayout();
     gridBagLayout.columnWidths = new int[]{1, 1};
-    gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
+    gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0};
     gridBagLayout.columnWeights = new double[]{1.0, 1.0};
-    gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+    gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0};
     frame.getContentPane().setLayout(gridBagLayout);
     
     txtConnectedTo = new JTextField();
@@ -119,14 +116,14 @@ public class ESPControl {
     gbc_btnConnect.gridy = 1;
     frame.getContentPane().add(btnConnect, gbc_btnConnect);
     
-    lblLeft = new JLabel("Left");
+    JLabel lblLeft = new JLabel("Left");
     GridBagConstraints gbc_lblLeft = new GridBagConstraints();
     gbc_lblLeft.insets = new Insets(0, 0, 5, 5);
     gbc_lblLeft.gridx = 0;
     gbc_lblLeft.gridy = 2;
     frame.getContentPane().add(lblLeft, gbc_lblLeft);
     
-    lblRight = new JLabel("Right");
+    JLabel lblRight = new JLabel("Right");
     GridBagConstraints gbc_lblRight = new GridBagConstraints();
     gbc_lblRight.insets = new Insets(0, 0, 5, 0);
     gbc_lblRight.gridx = 1;
@@ -135,6 +132,7 @@ public class ESPControl {
     
     // MARK: Control buttons
     btnLForward = new JButton("↑");
+    btnLForward.setEnabled(false);
     GridBagConstraints gbc_btnLForward = new GridBagConstraints();
     gbc_btnLForward.insets = new Insets(0, 0, 5, 5);
     gbc_btnLForward.gridx = 0;
@@ -142,6 +140,7 @@ public class ESPControl {
     frame.getContentPane().add(btnLForward, gbc_btnLForward);
     
     btnRForward = new JButton("↑");
+    btnRForward.setEnabled(false);
     GridBagConstraints gbc_btnRForward = new GridBagConstraints();
     gbc_btnRForward.insets = new Insets(0, 0, 5, 0);
     gbc_btnRForward.gridx = 1;
@@ -149,31 +148,25 @@ public class ESPControl {
     frame.getContentPane().add(btnRForward, gbc_btnRForward);
     
     btnLBackward = new JButton("↓");
+    btnLBackward.setEnabled(false);
     GridBagConstraints gbc_btnLBackward = new GridBagConstraints();
-    gbc_btnLBackward.insets = new Insets(0, 0, 5, 5);
+    gbc_btnLBackward.insets = new Insets(0, 0, 0, 5);
     gbc_btnLBackward.gridx = 0;
     gbc_btnLBackward.gridy = 4;
     frame.getContentPane().add(btnLBackward, gbc_btnLBackward);
     
     btnRBackward = new JButton("↓");
+    btnRBackward.setEnabled(false);
     GridBagConstraints gbc_btnRBackward = new GridBagConstraints();
-    gbc_btnRBackward.insets = new Insets(0, 0, 5, 0);
     gbc_btnRBackward.gridx = 1;
     gbc_btnRBackward.gridy = 4;
     frame.getContentPane().add(btnRBackward, gbc_btnRBackward);
-    
-    // MARK: Debug text area
-    JTextArea textArea = new JTextArea();
-    textArea.setEditable(false);
-    GridBagConstraints gbc_textArea = new GridBagConstraints();
-    gbc_textArea.gridwidth = 2;
-    gbc_textArea.fill = GridBagConstraints.BOTH;
-    gbc_textArea.gridx = 0;
-    gbc_textArea.gridy = 6;
-    frame.getContentPane().add(textArea, gbc_textArea);
   }
   
   private boolean isConnected = false;
+  /**
+   * Listener events for view components
+   */
   private void addListeners() {  
     btnConnect.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -282,22 +275,24 @@ public class ESPControl {
     });
   } // End addListener
   
+  // MARK: - Control actions
   private void actionLF(boolean pressed) {
     comms.setValue((byte)0B0110, pressed); // Q
   }
-  
   private void actionLB(boolean pressed) {
     comms.setValue((byte)0B0100, pressed); // A
   }
-  
   private void actionRF(boolean pressed) {
     comms.setValue((byte)0B1000, pressed); // E
   }
-  
   private void actionRB(boolean pressed) {
     comms.setValue((byte)0B1001, pressed); // D
   }
   
+  // MARK: - Connection actions
+  /**
+   * Start connection and set up elements
+   */
   private void actionConnect() {
     if (!txtIp.getText().isEmpty()) { // check if ip is entered
       try {
@@ -307,17 +302,29 @@ public class ESPControl {
         txtIp.setEnabled(false);
         txtConnectedTo.setText("Connected to " + txtIp.getText());
         btnConnect.setText("Disconnect");
-      } catch(Exception err) {
+        btnLForward.setEnabled(true);
+        btnRBackward.setEnabled(true);
+        btnLBackward.setEnabled(true);
+        btnRForward.setEnabled(true);
+      } catch(Exception e) {
 //        err.printStackTrace();
-        JOptionPane.showMessageDialog(null, err.getLocalizedMessage(), "Error when connecting", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Error when connecting", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
+  
+  /**
+   * Close connection and set up elements 
+   */
   private void actionDisconnect() {
     btnConnect.setText("Connect");
     txtConnectedTo.setText("Waiting...");
     txtIp.setEnabled(true);
     comms.disconnect();
+    btnLForward.setEnabled(false);
+    btnRBackward.setEnabled(false);
+    btnLBackward.setEnabled(false);
+    btnRForward.setEnabled(false);
   }
   
 } // End class

@@ -1,5 +1,5 @@
 /**
- * Main.java
+ * Comms.java
  */
 package com.DanielSpindelbauer.ScraphEEp;
 
@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
  *
  */
 public class Comms {
+  /**
+   * Encapsulating regex matching for IP validation
+   */
   private static class Validator {
     private static final String IPADDRESS_PATTERN =
         "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
@@ -41,8 +44,10 @@ public class Comms {
   /**
    * Constructor. Set field values.
    *
-   * @param ip
-   * @throws IllegalArgumentException
+   * @param ip: IP of ESP
+   * @throws IllegalArgumentException: invalid IP
+   * @throws UnknownHostException: can be sent by InetAddress for IP
+   * @throws SocketException: in case something goes wrong with socket init
    */
   public Comms(String ip) throws IllegalArgumentException, UnknownHostException, SocketException {
     if (!Validator.IP(ip)) { // validate input
@@ -57,17 +62,20 @@ public class Comms {
     }
   }
   
+  /**
+   * Init connection to ESP
+   * 
+   * @throws Exception: when something goes wrong
+   */
   public void connect() throws Exception {
     try {
       System.out.println("Connecting...");
-      
-      socket.send(new DatagramPacket(new byte[0], 0, ip, 4210));
       
       conn = new Connection();
       connectionThread = new Thread(conn);
       connectionThread.start();
     } catch (Exception e) {
-      e.printStackTrace();
+//      e.printStackTrace();
       System.out.println("Error when connecting to ESP, check code (this is from Comms.connect())");
       throw e;
     }
@@ -86,16 +94,18 @@ public class Comms {
   }
   
   
+  /**
+   * Set value to send to ESP
+   * 
+   * @param value: values to send as byte (each bit representing something, check other side for that)
+   * @param forwards: which direction the motors should turn 
+   */
   public void setValue(byte value, boolean forwards) {
     if (forwards) {
       this.valueToSend |= value;
     } else {
       this.valueToSend &= ~value;
     }
-  }
-  
-  public void stopValue() {
-    this.valueToSend = 0;
   }
   
   /**
@@ -107,7 +117,7 @@ public class Comms {
     public Connection() {}
     
     public void run() {
-      while (true) { // loop
+      while(true) { // loop
         try {
           Thread.sleep(10);
           byte[] outData = new byte[8];
