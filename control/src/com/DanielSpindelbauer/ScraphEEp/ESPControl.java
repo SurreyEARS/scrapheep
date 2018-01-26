@@ -348,7 +348,7 @@ public class ESPControl {
   }
   
   private void actionConnect() {
-    if(!txtIp.getText().isEmpty()) { // check if ip is entered
+    if (!txtIp.getText().isEmpty()) { // check if ip is entered
       try {
         ESPControl.comms = new Comms(txtIp.getText()); // init comms
         
