@@ -45,7 +45,7 @@ void setup() {
 
 	// server.begin();
 	Udp.begin(localUdpPort);
-	Serial.println("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
+	Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
 }
 
 typedef struct _GUID {
