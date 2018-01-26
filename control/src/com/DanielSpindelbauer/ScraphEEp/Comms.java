@@ -10,7 +10,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-//import java.util.UUID;
 
 
 /**
@@ -38,7 +37,6 @@ public class Comms {
   private DatagramSocket socket;
   private Thread connectionThread;
   private byte valueToSend = 0;
-//  UUID FormatID0 = UUID.fromString("CEAC9A68-E109-47B9-A134-F6B78DF82631"); // ??? 
   
   /**
    * Constructor. Set field values.
@@ -52,13 +50,8 @@ public class Comms {
     }
     try {
       this.ip = InetAddress.getByName(ip);
-    } catch (UnknownHostException e1) {
-      e1.printStackTrace();
-      throw e1;
-    }
-    try {
       this.socket = new DatagramSocket();
-    } catch (SocketException e) {
+    } catch (UnknownHostException | SocketException e) {
       e.printStackTrace();
       throw e;
     }
@@ -68,38 +61,17 @@ public class Comms {
     try {
       System.out.println("Connecting...");
       
+      socket.send(new DatagramPacket(new byte[0], 0, ip, 4210));
+      
       conn = new Connection();
       connectionThread = new Thread(conn);
       connectionThread.start();
     } catch (Exception e) {
-//      e.printStackTrace();
+      e.printStackTrace();
       System.out.println("Error when connecting to ESP, check code (this is from Comms.connect())");
       throw e;
     }
   }
-  
-  private class Connection implements Runnable {
-    public Connection() {}
-    
-    public void run() {
-      while (true) {
-        try {
-          Thread.sleep(10);
-          byte[] outData = new byte[1024];
-          outData = Byte.toString(valueToSend).getBytes();
-          DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, ip, 4210);
-          socket.send(sendPkt);
-
-          System.out.println("sent " + valueToSend);
-        } catch (Exception e) {
-          e.printStackTrace();
-          break;
-        }
-      }
-      
-      disconnect(); // TODO
-    }
-  } // End class
   
   /**
    * Close connection to socket
@@ -113,15 +85,44 @@ public class Comms {
     connectionThread.interrupt();
   }
   
-  public void setValue(int value) {
-    this.valueToSend |= value;
-  }
   
-  public void clearValue(int value) {
-    this.valueToSend &= ~value;
+  public void setValue(byte value, boolean forwards) {
+    if (forwards) {
+      this.valueToSend |= value;
+    } else {
+      this.valueToSend &= ~value;
+    }
   }
   
   public void stopValue() {
     this.valueToSend = 0;
   }
+  
+  /**
+   * @author Daniel Spindelbauer
+   *
+   * Separate thread for maintaining data stream connection to server 
+   */
+  private class Connection implements Runnable {
+    public Connection() {}
+    
+    public void run() {
+      while (true) { // loop
+        try {
+          Thread.sleep(10);
+          byte[] outData = new byte[8];
+          outData = Byte.toString(valueToSend).getBytes();
+          DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, ip, 4210);
+          socket.send(sendPkt);
+          
+          System.out.println("sent: " + valueToSend);
+        } catch (Exception e) {
+          e.printStackTrace();
+          break;
+        }
+      }
+      disconnect();
+    }
+  } // End class
+  
 } // End class

@@ -172,9 +172,9 @@ public class ESPControl {
     gbc_textArea.gridy = 6;
     frame.getContentPane().add(textArea, gbc_textArea);
   }
-
+  
   private boolean isConnected = false;
-  private void addListeners() {
+  private void addListeners() {  
     btnConnect.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(isConnected) {
@@ -221,16 +221,16 @@ public class ESPControl {
         if(e.getID() == KeyEvent.KEY_PRESSED) {
           switch (e.getKeyCode()) {
             case KeyEvent.VK_Q:
-              actionLF();
+              actionLF(true);
               break;
             case KeyEvent.VK_E:
-              actionRF();
+              actionRF(true);
               break;
             case KeyEvent.VK_A:
-              actionLB();
+              actionLB(true);
               break;
             case KeyEvent.VK_D:
-              actionRB();
+              actionRB(true);
               break;
             default:
           }
@@ -238,16 +238,16 @@ public class ESPControl {
         if (e.getID() == KeyEvent.KEY_RELEASED) {
           switch (e.getKeyCode()) {
             case KeyEvent.VK_Q:
-              actionReleaseLF();
+              actionLF(false);
               break;
             case KeyEvent.VK_E:
-              actionReleaseRF();
+              actionRF(false);
               break;
             case KeyEvent.VK_A:
-              actionReleaseLB();
+              actionLB(false);
               break;
             case KeyEvent.VK_D:
-              actionReleaseRB();
+              actionRB(false);
               break;
             default:
           }
@@ -259,59 +259,43 @@ public class ESPControl {
     
     btnLForward.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        actionLF();
+        actionLF(true);
       }
     });
     
     btnLBackward.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        actionLB();
+        actionLB(true);
       }
     });
     
     btnRForward.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        actionRF();
+        actionRF(true);
       }
     });
     
     btnRBackward.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        actionRB();
+        actionRB(true);
       }
     });
   } // End addListener
   
-  private void actionLF() {
-    comms.setValue(0B0110); // Q
+  private void actionLF(boolean pressed) {
+    comms.setValue((byte)0B0110, pressed); // Q
   }
   
-  private void actionLB() {
-    comms.setValue(0B0100); // A
+  private void actionLB(boolean pressed) {
+    comms.setValue((byte)0B0100, pressed); // A
   }
   
-  private void actionRF() {
-    comms.setValue(0B1000); // E
+  private void actionRF(boolean pressed) {
+    comms.setValue((byte)0B1000, pressed); // E
   }
   
-  private void actionRB() {
-    comms.setValue(0B1001); // D
-  }
-  
-  private void actionReleaseLF() {
-    comms.clearValue(0B0110); // Q
-  }
-  
-  private void actionReleaseLB() {
-    comms.clearValue(0B0100); // A
-  }
-  
-  private void actionReleaseRF() {
-    comms.clearValue(0B1000); // E
-  }
-  
-  private void actionReleaseRB() {
-    comms.clearValue(0B1001); // D
+  private void actionRB(boolean pressed) {
+    comms.setValue((byte)0B1001, pressed); // D
   }
   
   private void actionConnect() {
