@@ -3,11 +3,11 @@
  */
 package com.DanielSpindelbauer.ScraphEEp;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 //import java.util.UUID;
@@ -33,9 +33,9 @@ public class Comms {
     }
   }
   
-  private String ip;
-  private static Socket socket;
+  private InetAddress ip;
   private Connection conn;
+  private DatagramSocket socket;
   private Thread connectionThread;
   private byte valueToSend = 0;
 //  UUID FormatID0 = UUID.fromString("CEAC9A68-E109-47B9-A134-F6B78DF82631"); // ??? 
@@ -46,28 +46,29 @@ public class Comms {
    * @param ip
    * @throws IllegalArgumentException
    */
-  public Comms(String ip) throws IllegalArgumentException {
+  public Comms(String ip) throws IllegalArgumentException, UnknownHostException, SocketException {
     if (!Validator.IP(ip)) { // validate input
       throw new IllegalArgumentException("IP is invalid");
     }
-    this.ip = ip;
-  }
-  
-  public boolean isConnected() {
-    return socket.isConnected();
+    try {
+      this.ip = InetAddress.getByName(ip);
+    } catch (UnknownHostException e1) {
+      e1.printStackTrace();
+      throw e1;
+    }
+    try {
+      this.socket = new DatagramSocket();
+    } catch (SocketException e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
   
   public void connect() throws Exception {
     try {
       System.out.println("Connecting...");
-      socket = new Socket();
-      socket.connect(new InetSocketAddress(this.ip, 1647), 400);
-      socket.setSoTimeout(400);
-      socket.setTcpNoDelay(true);
       
-      System.out.println("Connected! :D");
-      
-      conn = new Connection(socket.getOutputStream()); 
+      conn = new Connection();
       connectionThread = new Thread(conn);
       connectionThread.start();
     } catch (Exception e) {
@@ -78,42 +79,18 @@ public class Comms {
   }
   
   private class Connection implements Runnable {
-    private DataOutputStream output;
-    
-    public Connection(OutputStream outputStream) {
-      this.output = new DataOutputStream(outputStream);
-    }
-    
-    long time = System.currentTimeMillis();
+    public Connection() {}
     
     public void run() {
-      while (socket.isConnected()) {
+      while (true) {
         try {
           Thread.sleep(10);
+          byte[] outData = new byte[1024];
+          outData = Byte.toString(valueToSend).getBytes();
+          DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, ip, 4210);
+          socket.send(sendPkt);
 
-          output.writeInt(Integer.reverseBytes(0xCEAC9A68));
-          output.writeShort(Short.reverseBytes((short)0xE109));
-          output.writeShort(Short.reverseBytes((short)0x47B9));
-          output.write(new byte[] {(byte)0xA1, (byte)0x34, (byte)0xF6, (byte)0xB7, (byte)0x8D, (byte)0xF8, (byte)0x26, (byte)0x31});
-
-          output.writeByte(1);
-          
-          if (System.currentTimeMillis() - time > 1000)  {
-//            output.writeByte(0B1111);
-//            output.writeByte(valueToSend);
-//            System.out.println("1");
-            time = System.currentTimeMillis();
-            if (System.currentTimeMillis() - time > 2000) {
-//              System.out.println("2");
-              
-//              valueToSend = 0;
-            }
-          } else {
-            output.writeByte(valueToSend);
-//            System.out.println("3");
-          }
-
-          output.write(new byte[1024]);
+          System.out.println("sent " + valueToSend);
         } catch (Exception e) {
           e.printStackTrace();
           break;
@@ -122,29 +99,18 @@ public class Comms {
       
       disconnect(); // TODO
     }
-  }
+  } // End class
   
   /**
    * Close connection to socket
    */
   public void disconnect() {
-    // TODO safely shut down data stream
-//    try {
-//      connectionThread.join(400);
-//    }
-//    catch (InterruptedException e1) {
-//      // TODO Auto-generated catch block
-//      System.out.println("Comms.disconnect()");
-//      e1.printStackTrace();
-//    }
-    
     if (socket.isConnected()) {
-      try {
-        socket.close();
-      } catch (IOException e) { // Can't close socket
-        e.printStackTrace();
-      }
+      socket.close();
     }
+    
+    // TODO safely shut down data stream
+    connectionThread.interrupt();
   }
   
   public void setValue(int value) {

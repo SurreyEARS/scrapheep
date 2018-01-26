@@ -5,14 +5,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
-import java.awt.Component;
-import javax.swing.Box;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Font;
@@ -20,17 +17,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.ActionEvent;
-
-import com.DanielSpindelbauer.ScraphEEp.Comms;
 import javax.swing.JLabel;
-import java.awt.event.KeyAdapter;
+import com.DanielSpindelbauer.ScraphEEp.Comms;
 
 public class ESPControl {
 
   private JFrame frame;
   
   private JButton btnConnect;
-  private JButton btnDisconnect;
   private JButton btnExit;
   
   private JTextField txtIp;
@@ -44,7 +38,6 @@ public class ESPControl {
   private static Comms comms = null;
   private JLabel lblLeft;
   private JLabel lblRight;
-  private JButton btnStop;
   
   /**
    * Launch the application.
@@ -83,12 +76,6 @@ public class ESPControl {
     // MARK: - MenuBar
     JMenuBar menuBar = new JMenuBar();
     frame.setJMenuBar(menuBar);
-    
-    btnDisconnect = new JButton("Disconnect");
-    btnDisconnect.setEnabled(false);
-    menuBar.add(btnDisconnect);
-    Component horizontalGlue = Box.createHorizontalGlue();
-    menuBar.add(horizontalGlue);
     btnExit = new JButton("Exit");
     menuBar.add(btnExit);
     
@@ -175,14 +162,6 @@ public class ESPControl {
     gbc_btnRBackward.gridy = 4;
     frame.getContentPane().add(btnRBackward, gbc_btnRBackward);
     
-    btnStop = new JButton("Stop");
-    GridBagConstraints gbc_btnStop = new GridBagConstraints();
-    gbc_btnStop.gridwidth = 2;
-    gbc_btnStop.insets = new Insets(0, 0, 5, 5);
-    gbc_btnStop.gridx = 0;
-    gbc_btnStop.gridy = 5;
-    frame.getContentPane().add(btnStop, gbc_btnStop);
-    
     // MARK: Debug text area
     JTextArea textArea = new JTextArea();
     textArea.setEditable(false);
@@ -194,29 +173,23 @@ public class ESPControl {
     frame.getContentPane().add(textArea, gbc_textArea);
   }
 
+  private boolean isConnected = false;
   private void addListeners() {
     btnConnect.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        actionConnect();
-      }
-    });
-    
-    btnDisconnect.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        btnDisconnect.setEnabled(false);
-        btnConnect.setEnabled(true);
-        comms.disconnect();
-        txtIp.setEnabled(true);
-        txtConnectedTo.setText("Waiting...");
+        if(isConnected) {
+          actionDisconnect();
+        } else {
+          actionConnect();
+        }
+        isConnected = !isConnected;
       }
     });
     
     btnExit.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         if(comms != null) {
-          if(comms.isConnected()) {
-            comms.disconnect();
-          }
+          comms.disconnect();
         }
         frame.dispose();
       }
@@ -307,12 +280,6 @@ public class ESPControl {
         actionRB();
       }
     });
-    
-    btnStop.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        comms.stopValue();
-      }
-    });
   } // End addListener
   
   private void actionLF() {
@@ -353,15 +320,20 @@ public class ESPControl {
         ESPControl.comms = new Comms(txtIp.getText()); // init comms
         
         comms.connect();
-        btnDisconnect.setEnabled(true);
-        btnConnect.setEnabled(false);
         txtIp.setEnabled(false);
         txtConnectedTo.setText("Connected to " + txtIp.getText());
+        btnConnect.setText("Disconnect");
       } catch(Exception err) {
 //        err.printStackTrace();
         JOptionPane.showMessageDialog(null, err.getLocalizedMessage(), "Error when connecting", JOptionPane.ERROR_MESSAGE);
       }
     }
+  }
+  private void actionDisconnect() {
+    btnConnect.setText("Connect");
+    txtConnectedTo.setText("Waiting...");
+    txtIp.setEnabled(true);
+    comms.disconnect();
   }
   
 } // End class
