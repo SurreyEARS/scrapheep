@@ -10,6 +10,9 @@ import javax.swing.Box;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Font;
@@ -20,6 +23,7 @@ import java.awt.event.ActionEvent;
 
 import com.DanielSpindelbauer.ScraphEEp.Comms;
 import javax.swing.JLabel;
+import java.awt.event.KeyAdapter;
 
 public class ESPControl {
 
@@ -33,13 +37,14 @@ public class ESPControl {
   private JTextField txtConnectedTo;
   
   private JButton btnLForward;
-  private JButton btnRLBackward;
+  private JButton btnRBackward;
   private JButton btnLBackward;
   private JButton btnRForward;
   
   private static Comms comms = null;
   private JLabel lblLeft;
   private JLabel lblRight;
+  private JButton btnStop;
   
   /**
    * Launch the application.
@@ -110,6 +115,7 @@ public class ESPControl {
     
     // MARK: - IP input field 
     txtIp = new JTextField();
+    txtIp.setText("192.168.0.102");
     txtIp.setToolTipText("0.0.0.0");
     GridBagConstraints gbc_ip = new GridBagConstraints();
     gbc_ip.insets = new Insets(0, 0, 5, 5);
@@ -162,12 +168,20 @@ public class ESPControl {
     gbc_btnLBackward.gridy = 4;
     frame.getContentPane().add(btnLBackward, gbc_btnLBackward);
     
-    btnRLBackward = new JButton("↓");
-    GridBagConstraints gbc_btnRLBackward = new GridBagConstraints();
-    gbc_btnRLBackward.insets = new Insets(0, 0, 5, 0);
-    gbc_btnRLBackward.gridx = 1;
-    gbc_btnRLBackward.gridy = 4;
-    frame.getContentPane().add(btnRLBackward, gbc_btnRLBackward);
+    btnRBackward = new JButton("↓");
+    GridBagConstraints gbc_btnRBackward = new GridBagConstraints();
+    gbc_btnRBackward.insets = new Insets(0, 0, 5, 0);
+    gbc_btnRBackward.gridx = 1;
+    gbc_btnRBackward.gridy = 4;
+    frame.getContentPane().add(btnRBackward, gbc_btnRBackward);
+    
+    btnStop = new JButton("Stop");
+    GridBagConstraints gbc_btnStop = new GridBagConstraints();
+    gbc_btnStop.gridwidth = 2;
+    gbc_btnStop.insets = new Insets(0, 0, 5, 5);
+    gbc_btnStop.gridx = 0;
+    gbc_btnStop.gridy = 5;
+    frame.getContentPane().add(btnStop, gbc_btnStop);
     
     // MARK: Debug text area
     JTextArea textArea = new JTextArea();
@@ -190,6 +204,7 @@ public class ESPControl {
     btnDisconnect.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         btnDisconnect.setEnabled(false);
+        btnConnect.setEnabled(true);
         comms.disconnect();
         txtIp.setEnabled(true);
         txtConnectedTo.setText("Waiting...");
@@ -227,64 +242,109 @@ public class ESPControl {
     });
     
     // listen for keys
-    frame.addKeyListener(new KeyListener() {
+    KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
       @Override
-      public void keyTyped(KeyEvent e) {}
-      
-      @Override
-      public void keyReleased(KeyEvent e) {
-        switch (e.getKeyCode()) {
-          case KeyEvent.VK_Q:
-            actionLF();
-            break;
-          case KeyEvent.VK_E:
-            actionRF();
-            break;
-          case KeyEvent.VK_A:
-            actionLB();
-            break;
-          case KeyEvent.VK_D:
-            actionRB();
-            break;
-          default:
+      public boolean dispatchKeyEvent(final KeyEvent e) {
+        if(e.getID() == KeyEvent.KEY_PRESSED) {
+          switch (e.getKeyCode()) {
+            case KeyEvent.VK_Q:
+              actionLF();
+              break;
+            case KeyEvent.VK_E:
+              actionRF();
+              break;
+            case KeyEvent.VK_A:
+              actionLB();
+              break;
+            case KeyEvent.VK_D:
+              actionRB();
+              break;
+            default:
+          }
+        } 
+        if (e.getID() == KeyEvent.KEY_RELEASED) {
+          switch (e.getKeyCode()) {
+            case KeyEvent.VK_Q:
+              actionReleaseLF();
+              break;
+            case KeyEvent.VK_E:
+              actionReleaseRF();
+              break;
+            case KeyEvent.VK_A:
+              actionReleaseLB();
+              break;
+            case KeyEvent.VK_D:
+              actionReleaseRB();
+              break;
+            default:
+          }
         }
+        
+        return false;
       }
-      
-      @Override
-      public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-          case KeyEvent.VK_Q:
-            actionLF();
-            break;
-          case KeyEvent.VK_E:
-            actionRF();
-            break;
-          case KeyEvent.VK_A:
-            actionLB();
-            break;
-          case KeyEvent.VK_D:
-            actionRB();
-            break;
-          default:
-        }
+    });
+    
+    btnLForward.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        actionLF();
+      }
+    });
+    
+    btnLBackward.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        actionLB();
+      }
+    });
+    
+    btnRForward.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        actionRF();
+      }
+    });
+    
+    btnRBackward.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        actionRB();
+      }
+    });
+    
+    btnStop.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        comms.stopValue();
       }
     });
   } // End addListener
   
   private void actionLF() {
-    ValueToSend |= 0B0110; // Q
+    comms.setValue(0B0110); // Q
   }
   
   private void actionLB() {
-    ValueToSend |= 0B0100; // A
+    comms.setValue(0B0100); // A
   }
   
   private void actionRF() {
-    ValueToSend |= 0B1000; // E
+    comms.setValue(0B1000); // E
   }
   
   private void actionRB() {
-    ValueToSend |= 0B1001; // D
+    comms.setValue(0B1001); // D
+  }
+  
+  private void actionReleaseLF() {
+    comms.clearValue(0B0110); // Q
+  }
+  
+  private void actionReleaseLB() {
+    comms.clearValue(0B0100); // A
+  }
+  
+  private void actionReleaseRF() {
+    comms.clearValue(0B1000); // E
+  }
+  
+  private void actionReleaseRB() {
+    comms.clearValue(0B1001); // D
   }
   
   private void actionConnect() {
@@ -294,6 +354,7 @@ public class ESPControl {
         
         comms.connect();
         btnDisconnect.setEnabled(true);
+        btnConnect.setEnabled(false);
         txtIp.setEnabled(false);
         txtConnectedTo.setText("Connected to " + txtIp.getText());
       } catch(Exception err) {
