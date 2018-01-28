@@ -30,7 +30,7 @@ public class Comms implements Observer {
         "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
         "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
     private static Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
-    private static Matcher matcher;
+    private static Matcher matcher = null;
         
     public static boolean IP(final String ip) {
       matcher = pattern.matcher(ip);
@@ -66,14 +66,14 @@ public class Comms implements Observer {
       throw e;
     }
     this.data = new DataPacket();
-    data.addObserver(this);
+    this.data.addObserver(this);
   }
   
   @Override
   public void update(Observable o, Object arg) {
     if (o instanceof DataPacket) {
-      System.out.println("Data is now " + ((DataPacket) o).getValueToSend());
       this.data = (DataPacket) o;
+      System.out.println("Data is now " + this.data.getValueToSend());
       this.shouldSend = true;
     }
   }
@@ -87,9 +87,9 @@ public class Comms implements Observer {
     try {
       System.out.println("Connecting...");
       
-      conn = new Connection();
-      connectionThread = new Thread(conn);
-      connectionThread.start();
+      this.conn = new Connection();
+      this.connectionThread = new Thread(conn);
+      this.connectionThread.start();
     } catch (Exception e) {
 //      e.printStackTrace();
       System.out.println("Error when connecting to ESP, check code (this is from Comms.connect())");
@@ -101,12 +101,20 @@ public class Comms implements Observer {
    * Close connection to socket
    */
   public void disconnect() {
-    if (socket.isConnected()) {
-      socket.close();
+    this.data.setValueToSend((byte) 0, true);
+    try {
+      this.sendData();
+    } catch (IOException e) {
+      // ¯\_(ツ)_/¯
+    }
+    
+    if (this.socket.isConnected()) {
+      this.socket.close();
     }
     
     // TODO safely shut down data stream
-    connectionThread.interrupt();
+    this.connectionThread.interrupt();
+    System.out.println("Disconnected");
   }
   
   
@@ -120,39 +128,44 @@ public class Comms implements Observer {
     this.data.setValueToSend(value, forwards);
   }
   
-  private void sendData() {
-    byte[] outData = new byte[8];
-    outData = Byte.toString(data.getValueToSend()).getBytes();
-    DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, ip, 4210);
+  private void sendData() throws IOException {
+    byte[] outData = new byte[1];
+    outData[0] = this.data.getValueToSend();
+    DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, this.ip, 4210);
     try {
-      socket.send(sendPkt);
+      this.socket.send(sendPkt);
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      throw e;
     }
     
-    System.out.println("sent: " + data.getValueToSend());
+    System.out.println(String.format("sent: %8s", Integer.toBinaryString(this.data.getValueToSend() & 0xFF)).replace(' ', '0'));
   }
   
   /**
-   * @author Daniel Spindelbauer
-   *
-   * Separate thread for maintaining data stream connection to server 
+   * Separate thread for maintaining data stream connection to server
+   * 
+   * @author Daniel Spindelbauer 
    */
   private class Connection implements Runnable {
     public Connection() { super(); }
     
     public void run() {
-      while(true) { // loop
+      while (true) { // loop
         try {
           Thread.sleep(10);
         } catch (InterruptedException e) {
           e.printStackTrace();
           break;
         }
-        if(shouldSend) { // only send if data changed flag is set
-          sendData();
-          shouldSend = !shouldSend; // sent data, change flag
+        if (shouldSend) { // only send if data changed flag is set
+          try {
+            sendData();
+            shouldSend = !shouldSend; // sent data, change flag
+          } catch (IOException e) {
+            // ¯\_(ツ)_/¯
+          }
         }
       }
       disconnect(); // loop broke, disconnect 

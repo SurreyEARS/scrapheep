@@ -277,16 +277,16 @@ public class ESPControl {
   
   // MARK: - Control actions
   private void actionLF(boolean pressed) {
-    comms.setValue((byte)0B0110, pressed); // Q
+    comms.setValue((byte) 0B0110, pressed); // Q
   }
   private void actionLB(boolean pressed) {
-    comms.setValue((byte)0B0100, pressed); // A
+    comms.setValue((byte) 0B0100, pressed); // A
   }
   private void actionRF(boolean pressed) {
-    comms.setValue((byte)0B1000, pressed); // E
+    comms.setValue((byte) 0B1000, pressed); // E
   }
   private void actionRB(boolean pressed) {
-    comms.setValue((byte)0B1001, pressed); // D
+    comms.setValue((byte) 0B1001, pressed); // D
   }
   
   // MARK: - Connection actions

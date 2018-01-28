@@ -31,7 +31,7 @@ public class DataPacket extends Observable {
       }
     }
     setChanged();
-    notifyObservers(); //(this.valueToSend)
+    notifyObservers();
   }
 
   public synchronized byte getValueToSend() {
