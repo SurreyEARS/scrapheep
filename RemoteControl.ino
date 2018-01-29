@@ -7,7 +7,7 @@ const char* password = "lunar-rover";
 
 WiFiUDP Udp;
 unsigned int localUdpPort = 4210;
-char incomingPacket[1];
+char incomingPacket[6];
 char replyPacket[] = "R";
 
 #define LED LED_BUILTIN
@@ -50,7 +50,7 @@ void loop() {
 	if (packetSize) {
 		// receive incoming UDP packets
 		Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
-		int len = Udp.read(incomingPacket, 1);
+		int len = Udp.read(incomingPacket, 6);
 		if (len > 0) {
 			incomingPacket[len] = 0;
 		}
