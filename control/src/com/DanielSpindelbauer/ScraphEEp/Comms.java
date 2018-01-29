@@ -42,7 +42,7 @@ public class Comms implements Observer {
   private Connection conn;
   private DatagramSocket socket;
   private Thread connectionThread;
-  private DataPacket data;
+  public DataPacket data = null;
   private boolean shouldSend = false;
   
   /**
@@ -73,7 +73,7 @@ public class Comms implements Observer {
   public void update(Observable o, Object arg) {
     if (o instanceof DataPacket) {
       this.data = (DataPacket) o;
-      System.out.println("Data is now " + this.data.getValueToSend());
+      System.out.println("Data is now " + this.data.getValuesToSend().toString());
       this.shouldSend = true;
     }
   }
@@ -101,7 +101,7 @@ public class Comms implements Observer {
    * Close connection to socket
    */
   public void disconnect() {
-    this.data.setValueToSend((byte) 0, true);
+    this.data.clearControls();
     try {
       this.sendData();
     } catch (IOException e) {
@@ -117,21 +117,8 @@ public class Comms implements Observer {
     System.out.println("Disconnected");
   }
   
-  
-  /**
-   * Set value to send to ESP
-   * 
-   * @param value: values to send as byte (each bit representing something, check other side for that)
-   * @param forwards: which direction the motors should turn 
-   */
-  public void setValue(byte value, boolean forwards) {
-    this.data.setValueToSend(value, forwards);
-  }
-  
   private void sendData() throws IOException {
-    byte[] outData = new byte[1];
-    outData[0] = this.data.getValueToSend();
-    DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, this.ip, 4210);
+    DatagramPacket sendPkt = new DatagramPacket(this.data.getValuesToSend(), this.data.getValuesToSend().length, this.ip, 4210);
     try {
       this.socket.send(sendPkt);
     } catch (IOException e) {
@@ -140,7 +127,7 @@ public class Comms implements Observer {
       throw e;
     }
     
-    System.out.println(String.format("sent: %8s", Integer.toBinaryString(this.data.getValueToSend() & 0xFF)).replace(' ', '0'));
+    System.out.println("sent: " + this.data.getValuesToSend().toString());
   }
   
   /**
