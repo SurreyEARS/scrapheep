@@ -84,13 +84,34 @@ public class DataPacket extends Observable {
    * @param y: y position of joystick
    */
   public void setMotors(int x, int y) {
+//    System.out.println("x: " + x + ", y: "+ y);
     synchronized (this) {
       if (controlIsCoord) {
         this.leftMotor = (byte) x;
         this.rightMotor = (byte) y;
       } else {
-        this.leftMotor = (byte) (y+x);
-        this.rightMotor = (byte) (y-x);
+        int left = y+x;
+        int right = y-x;
+        
+        if (left == 256) {
+          left = 255;
+        }
+        if (right == 256) {
+          right = 255;
+        }
+        if (left == -256) {
+          left = -255;
+        }
+        if (right == -256) {
+          right = -255;
+        }
+//        byte l = (byte) (0xff&left);
+//        byte r = (byte) (0xff&right);
+//        System.out.println(left + ", " + String.format("%8s", Integer.toBinaryString((byte) left & 0xFF)).replace(' ', '0') + ", " + String.format("%8s", Integer.toBinaryString((0xff&left) & 0xFF)).replace(' ', '0'));
+//        System.out.print("left: " + left + ", " + l + " -- "); 
+//        System.out.println("right: "+ right + ", " + r);
+        this.leftMotor = (byte) left;
+        this.rightMotor = (byte) right;
       } 
     }
     setChanged();

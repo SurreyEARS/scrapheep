@@ -73,7 +73,7 @@ public class Comms implements Observer {
   public void update(Observable o, Object arg) {
     if (o instanceof DataPacket) {
       this.data = (DataPacket) o;
-      System.out.println("Data is now " + this.data.getValuesToSend().toString());
+//      System.out.println("Data is now " + this.data.toString()); // TODO
       this.shouldSend = true;
     }
   }
@@ -87,34 +87,34 @@ public class Comms implements Observer {
     try {
       System.out.println("Connecting...");
       
-      byte[] outData = new byte[1];
-      outData[0] = (byte) 1;
-      DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, this.ip, 4210);
-      try {
-        this.socket.send(sendPkt);
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-        throw e;
-      }
+//      byte[] outData = new byte[1];
+//      outData[0] = (byte) 1;
+//      DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, this.ip, 4210);
+//      try {
+//        this.socket.send(sendPkt);
+//      } catch (IOException e) {
+//        // TODO Auto-generated catch block
+//        e.printStackTrace();
+//        throw e;
+//      }
       
-      byte[] receiveData = new byte[1];
-      DatagramPacket reply = new DatagramPacket(receiveData, receiveData.length);
-      this.socket.setSoTimeout(1000);
-      try {
-        this.socket.receive(reply);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+//      byte[] receiveData = new byte[1];
+//      DatagramPacket reply = new DatagramPacket(receiveData, receiveData.length);
+//      this.socket.setSoTimeout(1000);
+//      try {
+//        this.socket.receive(reply);
+//      } catch (Exception e) {
+//        e.printStackTrace();
+//      }
       
-      String replyValue = new String(reply.getData(), 0, reply.getLength());
-      System.out.println("RECEIVED: " + replyValue);
-      
-      if (replyValue.equals("R")) {
-        System.out.println("Connected");
-      } else {
-        throw new IOException("Didn't get reply packet");
-      }
+//      String replyValue = new String(reply.getData(), 0, reply.getLength());
+//      System.out.println("RECEIVED: " + replyValue);
+//      
+//      if (replyValue.equals("R")) {
+//        System.out.println("Connected");
+//      } else {
+//        throw new IOException("Didn't get reply packet");
+//      }
             
       this.conn = new Connection();
       this.connectionThread = new Thread(conn);
@@ -158,7 +158,7 @@ public class Comms implements Observer {
       throw e;
     }
     
-    System.out.println("sent: " + this.data.getValuesToSend().toString());
+//    System.out.println("sent: " + this.data.toString()); // TODO
   }
   
   /**
