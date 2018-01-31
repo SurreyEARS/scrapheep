@@ -1,37 +1,36 @@
 // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/udp-examples.rst
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+#include "RemoteControl.h"
 
 const char* ssid     = "EARS_LANDER_2.4";
 const char* password = "lunar-rover";
 
 WiFiUDP Udp;
 unsigned int localUdpPort = 4210;
-char incomingPacket[6];
+byte incomingPacketData[7];
 char replyPacket[] = "R";
 
-#define LED LED_BUILTIN
-
-void setup() {
+void setup()
+{
 	Serial.begin(115200);
 	pinMode(LED, OUTPUT);
 	digitalWrite(LED, HIGH);
 
-	pinMode(0, OUTPUT); // Motor A direction
-	pinMode(2, OUTPUT); // Motor B direction
-	pinMode(4, OUTPUT); // Motor B speed
-	pinMode(5, OUTPUT); // Motor A speed
+	pinMode(PIN_MOTOR_A_DIR, OUTPUT);
+	pinMode(PIN_MOTOR_A_SPEED, OUTPUT);
+	pinMode(PIN_MOTOR_B_DIR, OUTPUT);
+	pinMode(PIN_MOTOR_B_SPEED, OUTPUT);
 
 	delay(10);
 
-	Serial.println();
-	Serial.println();
 	Serial.print("Connecting to ");
 	Serial.println(ssid);
 
 	WiFi.begin(ssid, password);
 
-	while (WiFi.status() != WL_CONNECTED) {
+	while (WiFi.status() != WL_CONNECTED)
+	{
 		delay(500);
 		Serial.print(".");
 	}
@@ -45,34 +44,37 @@ void setup() {
 	Serial.printf("Now listening at IP %s, UDP port %d\n", WiFi.localIP().toString().c_str(), localUdpPort);
 }
 
-void loop() {
+void loop()
+{
 	int packetSize = Udp.parsePacket();
-	if (packetSize) {
-		// receive incoming UDP packets
-		Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+	if (packetSize)
+	{
+		Serial.printf("Received %d bytes ", packetSize);
 
-		if (packetSize == 1) { // initiating connection, send confirmation
-			// send back a reply, to the IP address and port we got the packet from
+		if (packetSize == 1)
+		{
 			Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 			Udp.write(replyPacket);
 			Udp.endPacket();
+      return;
 		}
 
-		int len = Udp.read(incomingPacket, 6);
-		if (len > 0) {
-			incomingPacket[len] = 0;
-		}
-		Serial.printf("UDP packet contents: %d\n", incomingPacket[0]);
-		byte command = (byte) incomingPacket[0];
+		int bytesRead = Udp.read(incomingPacketData, packetSize);
+    Serial.print(" packet contents: {");
+    for (int i = 0; i < bytesRead; i++)
+		  Serial.printf("%d%s", incomingPacketData[i], i < 5 ? ", " : "");
+    Serial.print("}\n");
 
 		digitalWrite(LED, LOW);
 		delay(1);
 		digitalWrite(LED, HIGH);
 
-		// pin, inline if: command equals value, set H or L
-		digitalWrite(0, command & 1 ? HIGH : LOW);
-		digitalWrite(2, command & 2 ? HIGH : LOW);
-		digitalWrite(4, command & 4 ? HIGH : LOW);
-		digitalWrite(5, command & 8 ? HIGH : LOW);
+    digitalWrite(PIN_MOTOR_A_DIR, incomingPacketData[0] > 255/2);
+    digitalWrite(PIN_MOTOR_B_DIR, incomingPacketData[1] > 255/2);
+    analogWrite(PIN_MOTOR_A_SPEED, (incomingPacketData[1] % 128) * 8);
+    analogWrite(PIN_MOTOR_B_SPEED, (incomingPacketData[0] % 128) * 8);
+
+    Serial.printf("Motor A speed: %d\n", (incomingPacketData[1] % 128) * 8);
+    Serial.printf("Motor B speed: %d\n", (incomingPacketData[1] % 128) * 8);
 	}
-} // End loop
+}
