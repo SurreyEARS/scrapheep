@@ -23,7 +23,7 @@ public class JoystickPanel extends JPanel implements ChangeListener {
   
   public JoystickPanel() {
     setLayout(new BorderLayout(0, 0));
-    SimpleJoystick myJoystick = new SimpleJoystick(128);
+    SimpleJoystick myJoystick = new SimpleJoystick(64);
     myJoystick.setPreferredSize(new Dimension(300, 300));
     myJoystick.addChangeListener(this);
     add(myJoystick, BorderLayout.CENTER);

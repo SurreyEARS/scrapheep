@@ -93,23 +93,23 @@ public class DataPacket extends Observable {
         int left = y+x;
         int right = y-x;
         
-        if (left == 256) {
-          left = 255;
+        if (left == 128) {
+          left = 127;
         }
-        if (right == 256) {
-          right = 255;
+        if (right == 128) {
+          right = 127;
         }
-        if (left == -256) {
-          left = -255;
+        if (left == -128) {
+          left = -127;
         }
-        if (right == -256) {
-          right = -255;
+        if (right == -128) {
+          right = -127;
         }
 //        byte l = (byte) (0xff&left);
 //        byte r = (byte) (0xff&right);
         System.out.println(left + ", " + String.format("%8s", Integer.toBinaryString((byte) left & 0xFF)).replace(' ', '0') );
-        System.out.print("left: " + left + ", "  + " -- "); 
-        System.out.println("right: "+ right + ", ");
+        System.out.print("left: " + (byte)((byte)left & 0xFF) + ", "  + " -- "); 
+        System.out.println("right: "+ (byte)((byte)right & 0xFF) + ", ");
         this.leftMotor = (byte) left;
         this.rightMotor = (byte) right;
       } 

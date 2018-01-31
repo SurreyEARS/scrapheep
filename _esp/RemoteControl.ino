@@ -56,7 +56,6 @@ void loop()
 			Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 			Udp.write(replyPacket);
 			Udp.endPacket();
-			return;
 		}
 
 		int bytesRead = Udp.read(incomingPacketData, packetSize);
@@ -69,12 +68,19 @@ void loop()
 		delay(1);
 		digitalWrite(LED, HIGH);
 
-		digitalWrite(PIN_MOTOR_A_DIR, incomingPacketData[0] > 255/2);
-		digitalWrite(PIN_MOTOR_B_DIR, incomingPacketData[1] > 255/2);
-		analogWrite(PIN_MOTOR_A_SPEED, (incomingPacketData[1] % 128) * 8);
-		analogWrite(PIN_MOTOR_B_SPEED, (incomingPacketData[0] % 128) * 8);
+		digitalWrite(PIN_MOTOR_A_DIR, incomingPacketData[0] & 1 ? LOW : HIGH);
+		digitalWrite(PIN_MOTOR_B_DIR, incomingPacketData[1] & 1 ? LOW : HIGH);
 
-		Serial.printf("Motor A speed: %d\n", (incomingPacketData[1] % 128) * 8);
-		Serial.printf("Motor B speed: %d\n", (incomingPacketData[1] % 128) * 8);
+		byte motorASpeed = incomingPacketData[0];
+		motorASpeed &= ~(1 << incomingPacketData[0]);
+
+		byte motorBSpeed = incomingPacketData[1];
+		motorBSpeed &= ~(1 << incomingPacketData[1]);
+
+		analogWrite(PIN_MOTOR_A_SPEED, motorASpeed);
+		analogWrite(PIN_MOTOR_B_SPEED, motorBSpeed);
+
+		Serial.printf("Motor A speed: %d\n", motorASpeed);
+		Serial.printf("Motor B speed: %d\n", motorBSpeed);
 	}
 }
