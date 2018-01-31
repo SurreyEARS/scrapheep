@@ -87,6 +87,26 @@ public class Comms implements Observer {
     try {
       System.out.println("Connecting...");
       
+      byte[] outData = new byte[1];
+      outData[0] = (byte) 1;
+      DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, this.ip, 4210);
+      try {
+        this.socket.send(sendPkt);
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        throw e;
+      }
+      
+      byte[] receiveData = new byte[1];
+      DatagramPacket reply = new DatagramPacket(receiveData, receiveData.length);
+      try {
+        this.socket.receive(reply);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      System.out.println(reply.toString());
+            
       this.conn = new Connection();
       this.connectionThread = new Thread(conn);
       this.connectionThread.start();

@@ -3,6 +3,7 @@
  */
 package com.DanielSpindelbauer.ScraphEEp;
 
+import java.util.Arrays;
 import java.util.Observable;
 
 /**
@@ -138,6 +139,18 @@ public class DataPacket extends Observable {
     }
     setChanged();
     notifyObservers();
+  }
+
+  /**
+   * Puts together the answer in a specified format then prints & returns it
+   *
+   * @return
+   */
+  @Override
+  public String toString() {
+    return "DataPacket [leftMotor=" + leftMotor + ", rightMotor=" + rightMotor + ", control1=" + control1 + ", control2=" + control2
+        + ", control3=" + control3 + ", control4=" + control4 + ", valuesToSend=" + Arrays.toString(valuesToSend)
+        + ", controlIsCoord=" + controlIsCoord + "]";
   }
 
 } // End class

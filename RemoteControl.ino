@@ -50,6 +50,14 @@ void loop() {
 	if (packetSize) {
 		// receive incoming UDP packets
 		Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp.remoteIP().toString().c_str(), Udp.remotePort());
+
+		if (packetSize == 1) { // initiating connection, send confirmation
+			// send back a reply, to the IP address and port we got the packet from
+			Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+			Udp.write(replyPacket);
+			Udp.endPacket();
+		}
+
 		int len = Udp.read(incomingPacket, 6);
 		if (len > 0) {
 			incomingPacket[len] = 0;
@@ -61,14 +69,10 @@ void loop() {
 		delay(1);
 		digitalWrite(LED, HIGH);
 
+		// pin, inline if: command equals value, set H or L
 		digitalWrite(0, command & 1 ? HIGH : LOW);
 		digitalWrite(2, command & 2 ? HIGH : LOW);
 		digitalWrite(4, command & 4 ? HIGH : LOW);
 		digitalWrite(5, command & 8 ? HIGH : LOW);
-
-		// send back a reply, to the IP address and port we got the packet from
-		// Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-		// Udp.write(replyPacket);
-		// Udp.endPacket();
 	}
 } // End loop
