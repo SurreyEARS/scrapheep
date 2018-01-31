@@ -100,12 +100,21 @@ public class Comms implements Observer {
       
       byte[] receiveData = new byte[1];
       DatagramPacket reply = new DatagramPacket(receiveData, receiveData.length);
+      this.socket.setSoTimeout(1000);
       try {
         this.socket.receive(reply);
       } catch (Exception e) {
         e.printStackTrace();
       }
-      System.out.println(reply.toString());
+      
+      String replyValue = new String(reply.getData(), 0, reply.getLength());
+      System.out.println("RECEIVED: " + replyValue);
+      
+      if (replyValue.equals("R")) {
+        System.out.println("Connected");
+      } else {
+        throw new IOException("Didn't get reply packet");
+      }
             
       this.conn = new Connection();
       this.connectionThread = new Thread(conn);
@@ -133,7 +142,9 @@ public class Comms implements Observer {
     }
     
     // TODO safely shut down data stream
-    this.connectionThread.interrupt();
+    if (this.connectionThread != null) {
+      this.connectionThread.interrupt();
+    }
     System.out.println("Disconnected");
   }
   
