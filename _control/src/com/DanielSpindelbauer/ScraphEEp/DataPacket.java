@@ -107,9 +107,9 @@ public class DataPacket extends Observable {
         }
 //        byte l = (byte) (0xff&left);
 //        byte r = (byte) (0xff&right);
-//        System.out.println(left + ", " + String.format("%8s", Integer.toBinaryString((byte) left & 0xFF)).replace(' ', '0') + ", " + String.format("%8s", Integer.toBinaryString((0xff&left) & 0xFF)).replace(' ', '0'));
-//        System.out.print("left: " + left + ", " + l + " -- "); 
-//        System.out.println("right: "+ right + ", " + r);
+        System.out.println(left + ", " + String.format("%8s", Integer.toBinaryString((byte) left & 0xFF)).replace(' ', '0') );
+        System.out.print("left: " + left + ", "  + " -- "); 
+        System.out.println("right: "+ right + ", ");
         this.leftMotor = (byte) left;
         this.rightMotor = (byte) right;
       } 
