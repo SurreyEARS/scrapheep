@@ -105,8 +105,7 @@ public class DataPacket extends Observable {
         if (right == -128) {
           right = -127;
         }
-//        byte l = (byte) (0xff&left);
-//        byte r = (byte) (0xff&right);
+        
         System.out.println(left + ", " + String.format("%8s", Integer.toBinaryString((byte) left & 0xFF)).replace(' ', '0') );
         System.out.print("left: " + (byte)((byte)left & 0xFF) + ", "  + " -- "); 
         System.out.println("right: "+ (byte)((byte)right & 0xFF) + ", ");

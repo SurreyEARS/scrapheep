@@ -68,14 +68,14 @@ void loop()
 		delay(1);
 		digitalWrite(LED, HIGH);
 
-		digitalWrite(PIN_MOTOR_A_DIR, incomingPacketData[0] & 1 ? LOW : HIGH);
-		digitalWrite(PIN_MOTOR_B_DIR, incomingPacketData[1] & 1 ? LOW : HIGH);
+		digitalWrite(PIN_MOTOR_A_DIR, (incomingPacketData[0] >> 0) & 1U ? LOW : HIGH);
+		digitalWrite(PIN_MOTOR_B_DIR, (incomingPacketData[1] >> 0) & 1U ? LOW : HIGH);
 
 		byte motorASpeed = incomingPacketData[0];
-		motorASpeed &= ~(1 << incomingPacketData[0]);
+		motorASpeed &= ~(1 << 1);
 
 		byte motorBSpeed = incomingPacketData[1];
-		motorBSpeed &= ~(1 << incomingPacketData[1]);
+		motorBSpeed &= ~(1 << 1);
 
 		analogWrite(PIN_MOTOR_A_SPEED, motorASpeed);
 		analogWrite(PIN_MOTOR_B_SPEED, motorBSpeed);
