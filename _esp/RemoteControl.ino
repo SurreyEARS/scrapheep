@@ -1,7 +1,6 @@
 // https://github.com/esp8266/Arduino/blob/master/doc/esp8266wifi/udp-examples.rst
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
-#include "RemoteControl.h"
 
 const char* ssid     = "EARS_LANDER_2.4";
 const char* password = "lunar-rover";
@@ -10,6 +9,7 @@ WiFiUDP Udp;
 unsigned int localUdpPort = 4210;
 byte incomingPacketData[7];
 char replyPacket[] = "R";
+#define LED LED_BUILTIN
 
 void setup()
 {
@@ -68,8 +68,8 @@ void loop()
 		delay(1);
 		digitalWrite(LED, HIGH);
 
-		digitalWrite(PIN_MOTOR_A_DIR, (incomingPacketData[0] >> 0) & 1U ? LOW : HIGH);
-		digitalWrite(PIN_MOTOR_B_DIR, (incomingPacketData[1] >> 0) & 1U ? LOW : HIGH);
+		digitalWrite(PIN_MOTOR_A_DIR, incomingPacketData[0] < 128);
+		digitalWrite(PIN_MOTOR_B_DIR, incomingPacketData[1] < 128);
 
 		byte motorASpeed = incomingPacketData[0];
 		motorASpeed &= ~(1 << 1);
@@ -77,10 +77,20 @@ void loop()
 		byte motorBSpeed = incomingPacketData[1];
 		motorBSpeed &= ~(1 << 1);
 
-		analogWrite(PIN_MOTOR_A_SPEED, motorASpeed);
-		analogWrite(PIN_MOTOR_B_SPEED, motorBSpeed);
+    int motorA = motorASpeed * 14;
+    int motorB = motorBSpeed * 14;
 
-		Serial.printf("Motor A speed: %d\n", motorASpeed);
-		Serial.printf("Motor B speed: %d\n", motorBSpeed);
+    if (motorA > 1000) { 
+      motorA = 1000;
+    }
+    if (motorB > 1000) { 
+      motorB = 1000;
+    }
+
+    analogWrite(PIN_MOTOR_A_SPEED, motorA);
+    analogWrite(PIN_MOTOR_B_SPEED, motorB);
+    
+		Serial.printf("Motor A speed: %d, %d\n", motorA, incomingPacketData[0] < 128);
+		Serial.printf("Motor B speed: %d, %d\n", motorB, incomingPacketData[1] < 128);
 	}
 }
