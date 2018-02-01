@@ -523,12 +523,9 @@ public class ESPControl
 	/**
 	 * Start connection and set up elements
 	 */
-	private void actionConnect()
-	{
-		if (!txtIp.getText().isEmpty())
-		{ // check if ip is entered
-			try
-			{
+	private void actionConnect() {
+		if (!txtIp.getText().isEmpty()) { // check if ip is entered
+			try {
 				ESPControl.comms = new Comms(txtIp.getText()); // init comms
 				comms.connect();
 				txtIp.setEnabled(false);
@@ -550,11 +547,11 @@ public class ESPControl
 				button1C2.setEnabled(true);
 				button1C3.setEnabled(true);
 				button1C4.setEnabled(true);
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Error when connecting", JOptionPane.ERROR_MESSAGE);
 			}
+		} else {
+		  JOptionPane.showMessageDialog(null, "Enter IP address of ESP", "No IP address", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
