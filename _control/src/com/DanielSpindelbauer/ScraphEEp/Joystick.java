@@ -78,6 +78,15 @@ class SimpleJoystick extends JPanel {
 
     dx = mouseX - joyCenterX;
     dy = mouseY - joyCenterY;
+    
+    // Added by Phil
+    double dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > joyRadius)
+    {
+    	dx *= joyRadius / dist;
+    	dy *= joyRadius / dist;
+    }
+    
     if (dx > joyRadius) dx = joyRadius;
     if (dy > joyRadius) dy = joyRadius;
     if (dx < -joyRadius) dx = -joyRadius;
