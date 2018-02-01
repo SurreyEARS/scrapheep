@@ -2,8 +2,8 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-const char* ssid     = "EARS_LANDER_2.4";
-const char* password = "lunar-rover";
+#define _HOME
+#include "RemoteControl.h"
 
 WiFiUDP Udp;
 unsigned int localUdpPort = 4210;
@@ -24,7 +24,7 @@ void setup()
 
 	delay(10);
 
-	Serial.print("Connecting to ");
+	Serial.print("\n\nConnecting to ");
 	Serial.println(ssid);
 
 	WiFi.begin(ssid, password);
