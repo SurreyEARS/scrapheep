@@ -25,7 +25,7 @@ public class JoystickPanel extends JPanel implements ChangeListener
 		setEnabled(false);
 		joystick.setPreferredSize(new Dimension(300, 300));
 		joystick.addChangeListener(this);
-		add(joystick, BorderLayout.CENTER);//test
+		add(joystick, BorderLayout.CENTER);
 
 		lblPosition = new JLabel("position");
 		add(lblPosition, BorderLayout.SOUTH);

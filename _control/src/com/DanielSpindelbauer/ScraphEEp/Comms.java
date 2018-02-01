@@ -8,11 +8,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.DanielSpindelbauer.ScraphEEp.ESPWindow.WindowStatus;
 
 /**
  * @author Daniel Spindelbauer
@@ -36,6 +39,8 @@ public class Comms implements Observer
 		}
 	}
 
+	private transient ESPControl control;
+	
 	private InetAddress ip;
 	private Connection conn;
 	private DatagramSocket socket;
@@ -55,9 +60,10 @@ public class Comms implements Observer
 	 * @throws SocketException:
 	 *             in case something goes wrong with socket init
 	 */
-	public Comms(String ip) throws IllegalArgumentException, UnknownHostException, SocketException
+	public Comms(ESPControl control, String ip) throws IllegalArgumentException, UnknownHostException, SocketException
 	{
 		super();
+		this.control = control;
 		if (!Validator.isIP(ip))
 		{ // validate input
 			throw new IllegalArgumentException("IP is invalid");
@@ -97,44 +103,12 @@ public class Comms implements Observer
 	{
 		try
 		{
-			System.out.println("Connecting...");
-
-			// byte[] outData = new byte[1];
-			// outData[0] = (byte) 1;
-			// DatagramPacket sendPkt = new DatagramPacket(outData, outData.length, this.ip, 4210);
-			// try {
-			// this.socket.send(sendPkt);
-			// } catch (IOException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// throw e;
-			// }
-
-			// byte[] receiveData = new byte[1];
-			// DatagramPacket reply = new DatagramPacket(receiveData, receiveData.length);
-			// this.socket.setSoTimeout(1000);
-			// try {
-			// this.socket.receive(reply);
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-
-			// String replyValue = new String(reply.getData(), 0, reply.getLength());
-			// System.out.println("RECEIVED: " + replyValue);
-			//
-			// if (replyValue.equals("R")) {
-			// System.out.println("Connected");
-			// } else {
-			// throw new IOException("Didn't get reply packet");
-			// }
-
-			this.conn = new Connection();
+			this.conn = new Connection(this);
 			this.connectionThread = new Thread(conn);
 			this.connectionThread.start();
 		}
 		catch (Exception e)
 		{
-			// e.printStackTrace();
 			System.out.println("Error when connecting to ESP, check code (this is from Comms.connect())");
 			throw e;
 		}
@@ -169,10 +143,10 @@ public class Comms implements Observer
 	
 	private void sendData(byte[] buffer, int length) throws IOException
 	{
-		DatagramPacket sendPkt = new DatagramPacket(buffer, length, this.ip, 4210);
+		DatagramPacket sendPkt = new DatagramPacket(buffer, length, ip, 4210);
 		try
 		{
-			this.socket.send(sendPkt);
+			socket.send(sendPkt);
 		}
 		catch (IOException e)
 		{
@@ -184,8 +158,6 @@ public class Comms implements Observer
 	private void sendData() throws IOException
 	{
 		sendData(data.getValuesToSend(), data.getValuesToSend().length);
-
-		// System.out.println("sent: " + this.data.toString()); // TODO
 	}
 
 	/**
@@ -195,8 +167,43 @@ public class Comms implements Observer
 	 */
 	private class Connection implements Runnable
 	{
+		private Comms comms;
+		
+		public Connection(Comms comms)
+		{
+			this.comms = comms;
+		}
+		
 		public void run()
 		{
+			System.out.println("Connecting...");
+			control.getWindow().setStatus(WindowStatus.CONNECTING);
+						
+			byte[] receiveData = new byte[1];
+			try
+			{
+				sendData(new byte[1], 1);
+				DatagramPacket reply = new DatagramPacket(receiveData, receiveData.length);
+				comms.socket.setSoTimeout(1000);
+				comms.socket.receive(reply);
+			}
+			catch (SocketTimeoutException e)
+			{
+				System.err.println("Timed out.");
+				control.getWindow().setStatus(WindowStatus.DISCONNECTED);
+				return;
+			}
+			catch (Exception e)
+			{
+				return;
+			}
+			if (receiveData[0] == 'R')
+				System.out.println("Connection success!");
+			else
+				 return;
+			
+			control.getWindow().setStatus(WindowStatus.CONNECTED);
+			
 			while (true)
 			{
 				try
