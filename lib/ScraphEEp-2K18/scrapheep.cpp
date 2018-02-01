@@ -1,4 +1,4 @@
-#define _HOME //!!!
+#define _TEST //!!!
 
 #include "scrapheep.h"
 
@@ -7,14 +7,15 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-#ifndef _HOME
-const char* wifi_ssid = "EARS_LANDER_2.4";
-const char* wifi_password = "lunar-rover";
-#else
+const char* default_wifi_ssid = "EARSAP1";
+const char* default_wifi_password = "ears-wifi";
 
-#endif
+void ESPControl::init()
+{
+	init(default_wifi_ssid, default_wifi_password);
+}
 
-void ESPControl::init(void)
+void ESPControl::init(const char* ssid, const char* password)
 {
 	replyPacket[0] = 'R';
 
@@ -30,9 +31,9 @@ void ESPControl::init(void)
 	delay(10);
 
 	Serial.print("\n\nConnecting to ");
-	Serial.println(wifi_ssid);
+	Serial.println(ssid);
 
-	WiFi.begin(wifi_ssid, wifi_password);
+	WiFi.begin(ssid, password);
 
 	while (WiFi.status() != WL_CONNECTED)
 	{
