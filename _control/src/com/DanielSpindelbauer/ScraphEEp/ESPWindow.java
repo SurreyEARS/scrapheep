@@ -105,7 +105,7 @@ public class ESPWindow implements StateChangeListener
 
 		// MARK: - IP input field
 		txtIp = new JTextField();
-		txtIp.setText("192.168.0.102");
+		txtIp.setText("");
 		txtIp.setToolTipText("0.0.0.0");
 		GridBagConstraints gbc_ip = new GridBagConstraints();
 		gbc_ip.gridwidth = 3;
