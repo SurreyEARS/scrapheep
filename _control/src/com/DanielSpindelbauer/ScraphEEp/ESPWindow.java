@@ -16,9 +16,14 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 
-public class ESPWindow
+import com.DanielSpindelbauer.ScraphEEp.ConnectionStatus.ConnectionState;
+import com.DanielSpindelbauer.ScraphEEp.ConnectionStatus.StateChangeListener;
+
+public class ESPWindow implements StateChangeListener
 {
-	private JFrame frame;
+	private transient ESPControl control;
+	
+	public JFrame frame;
 
 	public JoystickPanel joystick;
 
@@ -50,13 +55,14 @@ public class ESPWindow
 	public JTextField txtIp;
 	public JButton btnConnect;
 
-	public ESPWindow()
+	public ESPWindow(ESPControl control)
 	{
+		this.control = control;
+		
 		frame = new JFrame();
 		frame.setResizable(false);
 		frame.setTitle("ESP Control");
 		frame.setBounds(100, 100, 450, 600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// MARK: - MenuBar
 		JMenuBar menuBar = new JMenuBar();
@@ -87,7 +93,7 @@ public class ESPWindow
 		txtConnectedTo = new JTextField();
 		txtConnectedTo.setEditable(false);
 		txtConnectedTo.setFont(new Font("Lucida Grande", Font.PLAIN, 9));
-		txtConnectedTo.setText("Waiting...");
+		txtConnectedTo.setText("Idle");
 		GridBagConstraints gbc_txtConnectedTo = new GridBagConstraints();
 		gbc_txtConnectedTo.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtConnectedTo.gridwidth = 5;
@@ -418,7 +424,7 @@ public class ESPWindow
 		button1C4.setEnabled(enabled);
 	}
 	
-	public synchronized void setStatus(WindowStatus status)
+	public synchronized void setStatus(ConnectionState status)
 	{
 		switch (status)
 		{
@@ -431,19 +437,20 @@ public class ESPWindow
 			case CONNECTING:
 				btnConnect.setText("Connect");
 				btnConnect.setEnabled(false);
-				txtConnectedTo.setText("Idle");
+				txtConnectedTo.setText("Connecting to " + control.getConnection().getIP() + "...");
 				setEnabled(false);
 				break;
 			case CONNECTED:
 				btnConnect.setText("Disconnect");
-				btnConnect.setEnabled(false);
-				txtConnectedTo.setText("Idle");
+				btnConnect.setEnabled(true);
+				txtConnectedTo.setText("Connected to " + control.getConnection().getIP());
 				setEnabled(true);
 		}
 	}
-	
-	public enum WindowStatus
+
+	@Override
+	public void changed(ConnectionState status)
 	{
-		DISCONNECTED, CONNECTING, CONNECTED
+		setStatus(status);
 	}
 }

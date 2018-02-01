@@ -15,7 +15,7 @@ public class JoystickPanel extends JPanel implements ChangeListener
 {
 	private JLabel lblPosition;
 	private static final long serialVersionUID = 1L;
-	private Comms comms = null;
+	private Connection comms = null;
 	SimpleJoystick joystick;
 
 	public JoystickPanel()
@@ -38,7 +38,7 @@ public class JoystickPanel extends JPanel implements ChangeListener
 		joystick.setEnabled(enabled);
 	}
 
-	public void setComms(Comms c)
+	public void setComms(Connection c)
 	{
 		this.comms = c;
 	}
