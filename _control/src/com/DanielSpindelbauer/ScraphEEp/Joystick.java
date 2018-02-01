@@ -15,134 +15,151 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-/**
- * @author 
- *
- */
-class SimpleJoystick extends JPanel {
-  private static final long serialVersionUID = 1L;
-  /** Maximum value for full horiz or vert position where centered is 0 */
-  private int joyOutputRange;
-  /** max x and y value, in pixels */
-  private int joyRadius; 
-  /** Joystick displayed Center, in pixels */
-  private int joyCenterX, joyCenterY; 
-  /** joystick output position scaled to given joyOutputRange */
-  private Point position = new Point();
-  /** joystick x axis value in pixels */
-  private int dx = 0;
-  /** joystick y axis value in pixels */
-  private int dy = 0;
+class SimpleJoystick extends JPanel
+{
+	private static final long serialVersionUID = 1L;
+	/** Maximum value for full horiz or vert position where centered is 0 */
+	private int joyOutputRange;
+	/** max x and y value, in pixels */
+	private int joyRadius;
+	/** Joystick displayed Center, in pixels */
+	private int joyCenterX, joyCenterY;
+	/** joystick output position scaled to given joyOutputRange */
+	private Point position = new Point();
+	/** joystick x axis value in pixels */
+	private int dx = 0;
+	/** joystick y axis value in pixels */
+	private int dy = 0;
 
-  /**
-   * Constructor. Set field values.
-   *
-   * @param joyOutputRange
-   */
-  public SimpleJoystick(final int joyOutputRange) {
-    this.joyOutputRange = joyOutputRange;
-    setBackground(new Color(226, 226, 226));
-    MouseAdapter mouseAdapter = new MouseAdapter() {
-      @Override
-      public void mousePressed(final MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e) && cursorChanged(e.getX(), e.getY())) {
-          SwingUtilities.getRoot(SimpleJoystick.this).repaint();
-          fireStateChanged();
-        }
-      }
+	/**
+	 * Constructor. Set field values.
+	 *
+	 * @param joyOutputRange
+	 */
+	public SimpleJoystick(final int joyOutputRange)
+	{
+		this.joyOutputRange = joyOutputRange;
+		setBackground(new Color(226, 226, 226));
+		MouseAdapter mouseAdapter = new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(final MouseEvent e)
+			{
+				if (isEnabled() && SwingUtilities.isLeftMouseButton(e) && cursorChanged(e.getX(), e.getY()))
+				{
+					SwingUtilities.getRoot(SimpleJoystick.this).repaint();
+					fireStateChanged();
+				}
+			}
 
-      @Override
-      public void mouseDragged(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e) && cursorChanged(e.getX(), e.getY())) {
-          SwingUtilities.getRoot(SimpleJoystick.this).repaint();
-          fireStateChanged();
-        }
-      }
-      @Override
-      public void mouseReleased(MouseEvent e) {
-        if (SwingUtilities.isLeftMouseButton(e) && cursorChanged(e.getX(), e.getY())) {
-          SwingUtilities.getRoot(SimpleJoystick.this).repaint();
-          cursorChanged(joyCenterX, joyCenterY);
-          fireStateChanged();
-        }
-      }
-    };
-    addMouseMotionListener(mouseAdapter);
-    addMouseListener(mouseAdapter);
-  }
+			@Override
+			public void mouseDragged(MouseEvent e)
+			{
+				if (isEnabled() && SwingUtilities.isLeftMouseButton(e) && cursorChanged(e.getX(), e.getY()))
+				{
+					SwingUtilities.getRoot(SimpleJoystick.this).repaint();
+					fireStateChanged();
+				}
+			}
 
-  private boolean cursorChanged(int mouseX, int mouseY) {
-    if (joyRadius == 0) {
-      return false;
-    }
+			@Override
+			public void mouseReleased(MouseEvent e)
+			{
+				if (isEnabled() && SwingUtilities.isLeftMouseButton(e) && cursorChanged(e.getX(), e.getY()))
+				{
+					SwingUtilities.getRoot(SimpleJoystick.this).repaint();
+					cursorChanged(joyCenterX, joyCenterY);
+					fireStateChanged();
+				}
+			}
+		};
+		addMouseMotionListener(mouseAdapter);
+		addMouseListener(mouseAdapter);
+	}
 
-    dx = mouseX - joyCenterX;
-    dy = mouseY - joyCenterY;
-    
-    // Added by Phil
-    double dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist > joyRadius)
-    {
-    	dx *= joyRadius / dist;
-    	dy *= joyRadius / dist;
-    }
-    
-    if (dx > joyRadius) dx = joyRadius;
-    if (dy > joyRadius) dy = joyRadius;
-    if (dx < -joyRadius) dx = -joyRadius;
-    if (dy < -joyRadius) dy = -joyRadius;
+	private boolean cursorChanged(int mouseX, int mouseY)
+	{
+		if (joyRadius == 0)
+			return false;
 
-    position.x = joyOutputRange * dx / joyRadius;
-    position.y = -joyOutputRange * dy / joyRadius;
+		dx = mouseX - joyCenterX;
+		dy = mouseY - joyCenterY;
 
-    return true;
-  }
+		// Added by Phil
+		double dist = Math.sqrt(dx * dx + dy * dy);
+		if (dist > joyRadius)
+		{
+			dx *= joyRadius / dist;
+			dy *= joyRadius / dist;
+		}
 
-  @Override
-  protected void paintComponent(final Graphics g) {
-    super.paintComponent(g);
-    int joyWidth = getSize().width;
-    int joyHeight = getSize().height;
-    joyRadius = Math.min(joyWidth, joyHeight) / 2;
-    if (joyRadius == 0) return;
+		if (dx > joyRadius)
+			dx = joyRadius;
+		if (dy > joyRadius)
+			dy = joyRadius;
+		if (dx < -joyRadius)
+			dx = -joyRadius;
+		if (dy < -joyRadius)
+			dy = -joyRadius;
 
-    joyCenterX = joyWidth / 2;
-    joyCenterY = joyHeight / 2;
-    Graphics2D g2 = (Graphics2D) g;
-    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		position.x = joyOutputRange * dx / joyRadius;
+		position.y = -joyOutputRange * dy / joyRadius;
 
-    int diameter;
+		return true;
+	}
 
-    // background
-    g2.setColor(Color.LIGHT_GRAY);
-    diameter = joyRadius*2;
-    g2.fillOval(joyCenterX - diameter/2 , joyCenterY - diameter/2, diameter, diameter);
+	@Override
+	protected void paintComponent(final Graphics g)
+	{
+		super.paintComponent(g);
+		int joyWidth = getSize().width;
+		int joyHeight = getSize().height;
+		joyRadius = Math.min(joyWidth, joyHeight) / 2 - 20;
+		if (joyRadius == 0)
+			return;
 
-    g2.setColor(Color.RED);
-    diameter = 40;
-    g2.fillOval(joyCenterX + dx - diameter/2 , joyCenterY + dy - diameter/2, diameter, diameter);
+		joyCenterX = joyWidth / 2;
+		joyCenterY = joyHeight / 2;
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    // thumb
-    g2.setColor(Color.GRAY);
-    diameter = 20;
-    g2.fillOval(joyCenterX - diameter/2 , joyCenterY - diameter/2, diameter, diameter);
-  }
+		int diameter;
 
-  void addChangeListener(ChangeListener listener) {
-    listenerList.add(ChangeListener.class, listener);
-  }
+		// background
+		g2.setColor(isEnabled() ? Color.LIGHT_GRAY : Color.GRAY);
+		diameter = joyRadius * 2;
+		g2.fillOval(joyCenterX - diameter / 2, joyCenterY - diameter / 2, diameter, diameter);
 
-  void removeChangeListener(ChangeListener listener) {
-    listenerList.remove(ChangeListener.class, listener);
-  }
+		g2.setColor(isEnabled() ? Color.RED : new Color(0xA00000));
+		diameter = 40;
+		g2.fillOval(joyCenterX + dx - diameter / 2, joyCenterY + dy - diameter / 2, diameter, diameter);
 
-  protected void fireStateChanged() {
-    ChangeEvent e = new PointChangeEvent(this, position);
-    Object[] listeners = listenerList.getListenerList();
-    for (int i = listeners.length - 2; i >= 0; i -= 2) {
-      if (listeners[i] == ChangeListener.class) {
-        ((ChangeListener) listeners[i + 1]).stateChanged(e);
-      }
-    }
-  }
-} // End class
+		// thumb
+		g2.setColor(isEnabled() ? Color.GRAY : Color.DARK_GRAY);
+		diameter = 20;
+		g2.fillOval(joyCenterX - diameter / 2, joyCenterY - diameter / 2, diameter, diameter);
+	}
+
+	void addChangeListener(ChangeListener listener)
+	{
+		listenerList.add(ChangeListener.class, listener);
+	}
+
+	void removeChangeListener(ChangeListener listener)
+	{
+		listenerList.remove(ChangeListener.class, listener);
+	}
+
+	protected void fireStateChanged()
+	{
+		ChangeEvent e = new PointChangeEvent(this, position);
+		Object[] listeners = listenerList.getListenerList();
+		for (int i = listeners.length - 2; i >= 0; i -= 2)
+		{
+			if (listeners[i] == ChangeListener.class)
+			{
+				((ChangeListener) listeners[i + 1]).stateChanged(e);
+			}
+		}
+	}
+}
