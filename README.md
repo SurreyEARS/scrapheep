@@ -19,12 +19,15 @@ Code for EARS ScraphEEp 2018 challenge
 	g. Upload Speed - 921600
 	h. Port (select as needed when ESP is plugged in)
 	i. Programmer - AVR ISP
+	
+You can find drivers for macOS [here](https://github.com/adrianmihalko/ch340g-ch34g-ch34x-mac-os-x-driver/archive/master.zip) and [here](http://www.silabs.com/Support%20Documents/Software/Mac_OSX_VCP_Driver.zip).
 
 ### ESP - Writing Your Program
 1. Add the ScraphEEp2k18 library to your code: `#include <scrapheep.h>`
 2. (If you run into problems compiling this such as `multiple libraries were found for "WiFiUdp.h"` try adding `#include <ESP8266WiFi.h>` above this)
 3. Above the line `void setup()`, type `ESPControl control;` to create the ESP manager.
 4. Once this is done, simply call `control.init();` inside `setup()` to connect your processor to the WiFi.
+	*(To change the WiFi network, add 2 parameters, SSID PASSWORD, to `control.init()`. E.g. `control.init("SSID", "PASSWORD")`)*
 5. Finally, to start receiving data from the controller, put this code inside the `loop()` function:
 	```
 	uint8_t *data = control.processPacket();
@@ -56,7 +59,6 @@ To Power the ESP and the motor shield you have a few options:
 
 If using the LiPo battery, please use the provided fused battery harness to connect the battery. We will only be giving out batteries to teams who can demonstrate that their system is not short circuiting (to prevent any explosions etc) so before you get your battery it’s best to power your systems from a bench power supply to test everything (the battery voltage will be 8.4V full, 7.4V minimum usable)
 Client
-	
 
 ### Client
 1. Enter your ESP’s IP address *(Written on a paper slip, or 192.168.0.1x where x is your team number (if <10, add leading 0))*
