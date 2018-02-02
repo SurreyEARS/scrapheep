@@ -20,7 +20,7 @@ Code for EARS ScraphEEp 2018 challenge
 	h. Port (select as needed when ESP is plugged in)
 	i. Programmer - AVR ISP
 	
-You can find drivers for macOS [here](https://github.com/adrianmihalko/ch340g-ch34g-ch34x-mac-os-x-driver/archive/master.zip) and [here](http://www.silabs.com/Support%20Documents/Software/Mac_OSX_VCP_Driver.zip).
+You can find the driver for macOS [here](http://blog.sengotta.net/wp-content/uploads/2015/11/CH341SER_MAC-1.4.zip). (Thanks to [@DrChrisBridges](https://twitter.com/DrChrisBridges/status/959430562472701953))
 
 ### ESP - Writing Your Program
 1. Add the ScraphEEp2k18 library to your code: `#include <scrapheep.h>`
