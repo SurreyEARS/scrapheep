@@ -4,7 +4,7 @@ ESPControl control;
 
 void setup()
 {
-	control.init("House Ladz", "L6eydeJaqrLW");
+	control.init();
 }
 
 void loop()
