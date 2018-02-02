@@ -26,10 +26,10 @@ public class ESPControl
 	 */
 	public ESPControl()
 	{		
-		window = new ESPWindow(this);
-		addListeners();
 		connection = new Connection();
+		window = new ESPWindow(this);
 		connection.addStatusListener(window);
+		addListeners();
 		window.setVisible(true);
 	}
 
@@ -79,6 +79,7 @@ public class ESPControl
 			public void actionPerformed(ActionEvent e)
 			{
 				connection.data.setControlType(false);
+				window.joystick.joystick.fireStateChanged();
 			}
 		});
 
@@ -87,6 +88,7 @@ public class ESPControl
 			public void actionPerformed(ActionEvent e)
 			{
 				connection.data.setControlType(true);
+				window.joystick.joystick.fireStateChanged();
 			}
 		});
 
@@ -130,13 +132,12 @@ public class ESPControl
 	 */
 	private void actionConnect()
 	{
-		String ip = window.txtIp.getText();
-		if (!ip.isEmpty())
+		String address = window.txtIp.getText();
+		if (!address.isEmpty())
 		{
 			try
 			{
-				connection.connect(ip);
-				window.joystick.setComms(connection);
+				connection.connect(address);
 			}
 			catch (Exception e)
 			{

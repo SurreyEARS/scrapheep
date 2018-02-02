@@ -18,18 +18,10 @@ import javax.swing.event.ChangeListener;
 class SimpleJoystick extends JPanel
 {
 	private static final long serialVersionUID = 1L;
-	/** Maximum value for full horiz or vert position where centered is 0 */
 	private int joyOutputRange;
-	/** max x and y value, in pixels */
 	private int joyRadius;
-	/** Joystick displayed Center, in pixels */
 	private int joyCenterX, joyCenterY;
-	/** joystick output position scaled to given joyOutputRange */
-	private Point position = new Point();
-	/** joystick x axis value in pixels */
-	private int dx = 0;
-	/** joystick y axis value in pixels */
-	private int dy = 0;
+	public Point position = new Point();
 
 	/**
 	 * Constructor. Set field values.
@@ -82,28 +74,19 @@ class SimpleJoystick extends JPanel
 		if (joyRadius == 0)
 			return false;
 
-		dx = mouseX - joyCenterX;
-		dy = mouseY - joyCenterY;
+		position.x = mouseX - joyCenterX;
+		position.y = mouseY - joyCenterY;
 
 		// Added by Phil
-		double dist = Math.sqrt(dx * dx + dy * dy);
+		double dist = Math.sqrt(position.x * position.x + position.y * position.y);
 		if (dist > joyRadius)
 		{
-			dx *= joyRadius / dist;
-			dy *= joyRadius / dist;
+			position.x *= (double) joyRadius / dist;
+			position.y *= (double) joyRadius / dist;
 		}
 
-		if (dx > joyRadius)
-			dx = joyRadius;
-		if (dy > joyRadius)
-			dy = joyRadius;
-		if (dx < -joyRadius)
-			dx = -joyRadius;
-		if (dy < -joyRadius)
-			dy = -joyRadius;
-
-		position.x = joyOutputRange * dx / joyRadius;
-		position.y = -joyOutputRange * dy / joyRadius;
+		position.x = (int) Math.max(Math.min(joyOutputRange * (double) position.x / (double) joyRadius, 127), -127);
+		position.y = (int) Math.max(Math.min(-joyOutputRange * (double) position.y / (double) joyRadius, 127), -127);
 
 		return true;
 	}
@@ -132,12 +115,12 @@ class SimpleJoystick extends JPanel
 
 		g2.setColor(isEnabled() ? Color.RED : new Color(0xA00000));
 		diameter = 40;
-		g2.fillOval(joyCenterX + dx - diameter / 2, joyCenterY + dy - diameter / 2, diameter, diameter);
+		g2.fillOval(joyCenterX + position.x - diameter / 2, joyCenterY - position.y - diameter / 2, diameter, diameter);
 
 		// thumb
 		g2.setColor(isEnabled() ? Color.GRAY : Color.DARK_GRAY);
 		diameter = 20;
-		g2.fillOval(joyCenterX - diameter / 2, joyCenterY - diameter / 2, diameter, diameter);
+		g2.fillOval(joyCenterX - diameter / 2,  joyCenterY - diameter / 2, diameter, diameter);
 	}
 
 	void addChangeListener(ChangeListener listener)

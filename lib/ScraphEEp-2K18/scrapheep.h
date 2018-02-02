@@ -27,18 +27,13 @@
 #define C3 4
 #define C4 5
 
-extern const char* wifi_ssid;
-extern const char* wifi_password;
-
-// library interface description
 class ESPControl
 {
-  // user-accessible "public" interface
   public:
 	void init(void);
+	void init(const char*, const char*);
 	uint8_t* processPacket(void);
 
-  // library-accessible "private" interface
   private:
 	WiFiUDP Udp;
 	uint16_t localUdpPort = 4210;

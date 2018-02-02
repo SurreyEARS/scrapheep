@@ -13,8 +13,8 @@ public class DataPacket
 {
 	private boolean hasChanged = false;
 	
-	private byte leftMotor;
-	private byte rightMotor;
+	public byte leftMotor;
+	public byte rightMotor;
 
 	private byte control1;
 	private byte control2;
@@ -26,7 +26,7 @@ public class DataPacket
 	 */
 	private byte[] valuesToSend;
 
-	private boolean controlIsCoord = false;
+	public boolean controlIsCoord = false;
 
 	/**
 	 * Constructor. Set field values.

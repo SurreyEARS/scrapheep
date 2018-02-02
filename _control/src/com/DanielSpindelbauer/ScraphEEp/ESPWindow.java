@@ -106,7 +106,7 @@ public class ESPWindow implements StateChangeListener
 		// MARK: - IP input field
 		txtIp = new JTextField();
 		txtIp.setText("");
-		txtIp.setToolTipText("0.0.0.0");
+		txtIp.setToolTipText("ESP address");
 		GridBagConstraints gbc_ip = new GridBagConstraints();
 		gbc_ip.gridwidth = 3;
 		gbc_ip.insets = new Insets(0, 0, 5, 5);
@@ -319,7 +319,7 @@ public class ESPWindow implements StateChangeListener
 		frame.getContentPane().add(lblControl_3, gbc_lblControl_3);
 
 		// MARK: Control buttons
-		joystick = new JoystickPanel();
+		joystick = new JoystickPanel(control.getConnection());
 		GridBagConstraints gbc_joystick = new GridBagConstraints();
 		gbc_joystick.gridwidth = 5;
 		gbc_joystick.fill = GridBagConstraints.BOTH;

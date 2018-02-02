@@ -1,5 +1,3 @@
-#define _TEST //!!!
-
 #include "scrapheep.h"
 
 #include <Arduino.h>
@@ -10,7 +8,7 @@
 const char* default_wifi_ssid = "EARSAP1";
 const char* default_wifi_password = "ears-wifi";
 
-void ESPControl::init()
+void ESPControl::init(void)
 {
 	init(default_wifi_ssid, default_wifi_password);
 }
@@ -21,7 +19,7 @@ void ESPControl::init(const char* ssid, const char* password)
 
 	Serial.begin(115200);
 	pinMode(LED_BUILTIN, OUTPUT);
-	digitalWrite(LED_BUILTIN, HIGH);
+	digitalWrite(LED_BUILTIN, LOW);
 
 	pinMode(PIN_MOTOR_A_DIR, OUTPUT);
 	pinMode(PIN_MOTOR_A_SPEED, OUTPUT);
@@ -42,13 +40,13 @@ void ESPControl::init(const char* ssid, const char* password)
 
 		if (WiFi.status() == WL_NO_SSID_AVAIL)
 		{
-			Serial.printf("\nCannot find %s! Are you sure it is the correct name?", wifi_ssid);
+			Serial.printf("\nCannot find %s! Are you sure it is the correct name?", ssid);
 			while (true)
 				yield();
 		}
 		else if (WiFi.status() == WL_CONNECT_FAILED)
 		{
-			Serial.printf("\nFailed to connect to %s! Have you got the correct name and password?", wifi_ssid);
+			Serial.printf("\nFailed to connect to %s! Have you got the correct name and password?", ssid);
 			while (true)
 				yield();
 		}
@@ -68,7 +66,7 @@ uint8_t* ESPControl::processPacket(void)
 	int packetSize = Udp.parsePacket();
 	if (packetSize)
 	{
-#ifdef DEBUG
+#ifdef _DEBUG
 		Serial.printf("Received %d bytes.\n", packetSize);
 #endif
 
@@ -77,7 +75,7 @@ uint8_t* ESPControl::processPacket(void)
 			Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
 			Udp.write(replyPacket);
 			Udp.endPacket();
-			Serial.println("Received connection from controller!");
+			Serial.println("Connection to controller initiated!");
 			return nullptr;
 		}
 
@@ -88,16 +86,16 @@ uint8_t* ESPControl::processPacket(void)
 			return nullptr;
 		}
 
-#ifdef DEBUG
+#ifdef _DEBUG
 		Serial.print("Packet contents: {");
 		for (int i = 0; i < bytesRead; i++)
 			Serial.printf("%d%s", incomingPacketData[i], i < 5 ? ", " : "");
 		Serial.print("}\n");
 #endif
 
-		digitalWrite(LED_BUILTIN, LOW);
-		delay(1);
 		digitalWrite(LED_BUILTIN, HIGH);
+		delay(1);
+		digitalWrite(LED_BUILTIN, LOW);
 
 		return incomingPacketData;
 	}

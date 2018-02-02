@@ -34,16 +34,29 @@ public class Connection
 		data = new DataPacket();
 	}
 	
-	public void connect(String ip)
+	public void connect(String address)
 	{
 		if (status.getStatus() != ConnectionState.DISCONNECTED)
 			return;
 		
 		try
 		{
-			if (!Utils.isIP(ip))
-				throw new IllegalArgumentException("IP is invalid");
-			this.ip = InetAddress.getByName(ip);
+			if (!Utils.isIP(address))
+			{
+				try
+				{
+					int espId = Integer.parseInt(address);
+					if (espId >= 0 && espId <= 12)
+						address = String.format("192.168.1.1%02d", espId);
+					else
+						throw new Exception();
+				}
+				catch (Exception e)
+				{
+					throw new IllegalArgumentException("Address is invalid");
+				}
+			}
+			ip = InetAddress.getByName(address);
 			
 			System.out.println("Connecting...");
 			status.set(ConnectionState.CONNECTING);
