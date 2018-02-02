@@ -47,7 +47,7 @@ public class Connection
 				{
 					int espId = Integer.parseInt(address);
 					if (espId >= 0 && espId <= 12)
-						address = String.format("192.168.1.1%02d", espId);
+						address = String.format("192.168.0.1%02d", espId);
 					else
 						throw new Exception();
 				}
