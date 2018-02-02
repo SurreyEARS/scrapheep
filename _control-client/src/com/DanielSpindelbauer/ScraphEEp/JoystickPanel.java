@@ -55,23 +55,23 @@ public class JoystickPanel extends JPanel implements ChangeListener
 		{
 			if (comms.isConnected())
 			{
-				if (keys[KeyEvent.VK_NUMPAD1])
+				if (keys[KeyEvent.VK_Z])
 					joystick.position.setLocation(-127, -127);
-				else if (keys[KeyEvent.VK_NUMPAD2])
+				else if (keys[KeyEvent.VK_X])
 					joystick.position.setLocation(0, -127);
-				else if (keys[KeyEvent.VK_NUMPAD3])
+				else if (keys[KeyEvent.VK_C])
 					joystick.position.setLocation(127, -127);
-				else if (keys[KeyEvent.VK_NUMPAD4])
+				else if (keys[KeyEvent.VK_A])
 					joystick.position.setLocation(-127, 0);
-				else if (keys[KeyEvent.VK_NUMPAD5])
+				else if (keys[KeyEvent.VK_S])
 					joystick.position.setLocation(0, 0);
-				else if (keys[KeyEvent.VK_NUMPAD6])
+				else if (keys[KeyEvent.VK_D])
 					joystick.position.setLocation(127, 0);
-				else if (keys[KeyEvent.VK_NUMPAD7])
+				else if (keys[KeyEvent.VK_Q])
 					joystick.position.setLocation(-127, 127);
-				else if (keys[KeyEvent.VK_NUMPAD8])
+				else if (keys[KeyEvent.VK_W])
 					joystick.position.setLocation(0, 127);
-				else if (keys[KeyEvent.VK_NUMPAD9])
+				else if (keys[KeyEvent.VK_E])
 					joystick.position.setLocation(127, 127);
 				else
 				{
