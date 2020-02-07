@@ -6,7 +6,8 @@ Servo servo_A;
 
 void setup()
 {
-	control.init("EARSAP1", "ears-wifi");
+  control.init("EARSAP1", "ears-wifi");
+  //Set the baud rate of your Serial Monitor to 115200 to see the IP Address of your device
   servo_A.attach(15); //GPIO 15 corresponds to physical pin D8
 }
 
